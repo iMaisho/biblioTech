@@ -1,4 +1,4 @@
-package fr.formation.bibliotech.dal.entities;
+package fr.formation.spring.bibliotech.dal.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -8,6 +8,7 @@ import java.util.Set;
 @Data // Génère getters, setters, toString, etc.
 @NoArgsConstructor // Génère un constructeur sans arguments
 @Entity // Indique que cette classe est une entité JPA
+@Table(name = "authors")
 public class Author {
 
     @Id // Clé primaire

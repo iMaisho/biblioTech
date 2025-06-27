@@ -1,4 +1,4 @@
-package fr.formation.bibliotech;
+package fr.formation.spring.bibliotech;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

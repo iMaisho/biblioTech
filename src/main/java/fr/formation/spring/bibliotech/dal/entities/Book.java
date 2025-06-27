@@ -1,4 +1,4 @@
-package fr.formation.bibliotech.dal.entities;
+package fr.formation.spring.bibliotech.dal.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -9,6 +9,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @Entity
+@Table(name = "books")
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +25,7 @@ public class Book {
     // Un livre peut avoir plusieurs auteurs.
     @ManyToMany
     @JoinTable( // Table de jointure pour la relation ManyToMany
-            name = "book_author",
+            name = "books_authors",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "author_id"))
     private Set<Author> authors;
