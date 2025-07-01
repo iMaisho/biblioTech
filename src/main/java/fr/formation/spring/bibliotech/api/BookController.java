@@ -6,12 +6,14 @@ import fr.formation.spring.bibliotech.api.mapper.BookMapper;
 import fr.formation.spring.bibliotech.dal.entities.Book;
 import fr.formation.spring.bibliotech.dal.repositories.BookRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -36,7 +38,7 @@ public class BookController {
 
     // La création prend maintenant un BookSaveDto en entrée
     @PostMapping
-    public ResponseEntity<BookDto> createBook(@RequestBody BookSaveDto bookToCreate) {
+    public ResponseEntity<BookDto> createBook(@Valid @RequestBody BookSaveDto bookToCreate) {
         // On convertit le DTO d'entrée en entité
         Book newBook = this.bookMapper.toEntity(bookToCreate);
         Book savedBook = this.bookRepository.save(newBook);
