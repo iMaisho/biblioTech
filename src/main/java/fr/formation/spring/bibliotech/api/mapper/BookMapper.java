@@ -1,62 +1,43 @@
 package fr.formation.spring.bibliotech.api.mapper;
 
+
 import fr.formation.spring.bibliotech.api.dto.BookDto;
 import fr.formation.spring.bibliotech.api.dto.BookSaveDto;
 import fr.formation.spring.bibliotech.dal.entities.Author;
 import fr.formation.spring.bibliotech.dal.entities.Book;
 import fr.formation.spring.bibliotech.dal.repositories.AuthorRepository;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
+import java.util.Set;
 import java.util.stream.Collectors;
 
-@Component // Pour que Spring puisse l'injecter dans notre contrôleur
-public class BookMapper {
+// componentModel="spring" génère un @Component sur l'implémentation,
+// la rendant injectable.
+// uses = {AuthorRepository.class} permet à MapStruct d'injecter et
+// d'utiliser ce repository.
+@Mapper(componentModel = "spring", uses = {AuthorRepository.class})
+public interface BookMapper {
 
-    private final AuthorRepository authorRepository;
+    // MapStruct gère automatiquement les champs avec le même nom.
+    // Pour "authorNames", le mapping est complexe, on le spécifie.
+    @Mapping(target = "authorNames", source = "authors", qualifiedByName = "authorsToNames")
+    BookDto toDto(Book entity);
 
-    public BookMapper(AuthorRepository authorRepository) {
-        this.authorRepository = authorRepository;
-    }
+    // Pour le DTO -> Entité, on doit gérer la conversion des IDs en entités.
+    @Mapping(target = "authors", source = "authorIds")
+    Book toEntity(BookSaveDto dto);
 
-    // Convertit une Entité Book en DTO de sortie BookDto
-    public BookDto toDto(Book entity) {
-        if (entity == null) {
+    // Cette méthode nommée "authorsToNames" sera utilisée par MapStruct
+    // pour le mapping personnalisé.
+    @Named("authorsToNames")
+    default Set<String> authorsToNames(Set<Author> authors) {
+        if (authors == null) {
             return null;
         }
-        BookDto dto = new BookDto();
-        dto.setId(entity.getId());
-        dto.setTitle(entity.getTitle());
-        dto.setIsbn(entity.getIsbn());
-        dto.setPublicationDate(entity.getPublicationDate());
-
-        // Pour les auteurs, on extrait juste leur nom complet.
-        if (entity.getAuthors() != null) {
-            dto.setAuthorNames(entity.getAuthors().stream()
-                    .map(author -> author.getFirstName() + " " + author.getLastName())
-                    .collect(Collectors.toSet()));
-        }
-        return dto;
-    }
-
-    // Convertit un DTO d'entrée BookSaveDto en Entité Book
-    public Book toEntity(BookSaveDto dto) {
-        if (dto == null) {
-            return null;
-        }
-        Book entity = new Book();
-        entity.setTitle(dto.getTitle());
-        entity.setIsbn(dto.getIsbn());
-        entity.setPublicationDate(dto.getPublicationDate());
-
-        // Pour les IDs des auteurs, on va chercher les entités
-        // correspondantes dans la base.
-        if (dto.getAuthorIds() != null) {
-            entity.setAuthors(dto.getAuthorIds().stream()
-                    .map(authorRepository::findById)
-                    .filter(java.util.Optional::isPresent)
-                    .map(java.util.Optional::get)
-                    .collect(Collectors.toSet()));
-        }
-        return entity;
+        return authors.stream()
+                .map(author -> author.getFirstName() + " " + author.getLastName())
+                .collect(Collectors.toSet());
     }
 }
